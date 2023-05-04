@@ -31,7 +31,6 @@ marker_mapping = {
     0xffd9: "End of Image"
 }
 
-
 class JPEG:
     def __init__(self, image_file):
         with open(image_file, 'rb') as f:
@@ -41,7 +40,6 @@ class JPEG:
         data = self.img_data
         while(True):
             marker, = unpack(">H", data[0:2])
-            #print(marker_mapping.get(marker))
             marker_mapping.get(marker)
             if marker == 0xffd8:
                 data = data[2:]
@@ -55,8 +53,6 @@ class JPEG:
             if len(data)==0:
                 break  
 
-    
-
 #model data
 model = keras.models.load_model("Models")
 
@@ -69,7 +65,6 @@ class_names = ['bald_uakari', 'black_headed_night_monkey',
 
 img_height = 400
 img_width = img_height
-image_url = "C:\\Users\\Brenden\\Desktop\\picachu.JPG"
 
 def updateStats(speciesName):
     stats = []
@@ -92,31 +87,11 @@ def updateStats(speciesName):
             write.writerow(head)
             write.writerows(stats)
 
-#image verification
+#image verification module
 def verifyImage(imgUrl):
-
     try:
-        img_data = None
-        with open(imgUrl) as file:
-            img_data = file.read()
-
-        data = img_data
-        while(True):
-            marker, = unpack(">H", data[0:2])
-            marker_mapping.get(marker)
-            if marker == 0xffd8:
-                data = data[2:]
-            elif marker == 0xffd9:
-                return
-            elif marker == 0xffda:
-                data = data[-2:]
-            else:
-                lenchunk, = unpack(">H", data[2:4])
-                data = data[2+lenchunk:]            
-            if len(data)==0:
-                break  
-            # img = JPEG(imgUrl)
-            # img.decode()
+        img = JPEG(imgUrl)
+        img.decode()
     except:
         return False
 
@@ -184,8 +159,6 @@ class MainWindow(wx.Frame):
         predictions = model.predict(img_array)
         score = tf.nn.softmax(predictions[0])
         predicted = class_names[np.argmax(score)]
-        print("PRedicted----------" + predicted)
-        print(class_names)
         updateStats(predicted)
         self.outputField.Value = predicted
 
